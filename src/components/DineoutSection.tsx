@@ -117,7 +117,7 @@ const DineoutSection = () => {
     ];
 
     return (
-        <section className="mb-20">
+        <section className="mt-10 md:mt-12 mb-20">
             <div className="flex items-center justify-between mb-6">
                 <h2 className="text-2xl font-extrabold text-[#02060c] tracking-tight">Discover best restaurants on Dineout</h2>
                 <div className="flex gap-3">
@@ -135,58 +135,60 @@ const DineoutSection = () => {
                 className="flex gap-6 overflow-x-auto no-scrollbar pb-4 -mx-4 px-4 scroll-smooth"
             >
                 {restaurants.map((item, index) => (
-                    <div key={index} className="min-w-[330px] max-w-[330px] cursor-pointer group">
-                        {/* Image Section */}
-                        <div className="w-full h-[220px] relative rounded-2xl overflow-hidden mb-3">
-                            <img
-                                src={item.img}
-                                alt={item.name}
-                                className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-                            />
-                            {/* Gradient Overlay */}
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
+                      <div key={index} className="min-w-[330px] max-w-[330px] group">
+                        <div className="block cursor-default" aria-label={item.name}>
+                          {/* Image Section */}
+                          <div className="w-full h-[220px] relative rounded-2xl overflow-hidden mb-3">
+                              <img
+                                  src={item.img}
+                                  alt={item.name}
+                                  className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                              />
+                              {/* Gradient Overlay */}
+                              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
 
-                            {/* Content Overlay */}
-                            <div className="absolute bottom-4 left-4 right-4 flex justify-between items-end">
-                                <h3 className="text-white font-extrabold text-xl leading-tight truncate pr-2 z-10">{item.name}</h3>
-                                <div className="flex-shrink-0 bg-[#25a541] text-white text-xs font-bold px-1.5 py-0.5 rounded flex items-center gap-1 shadow-sm z-10">
-                                    <span>{item.rating}</span>
-                                    <span className="text-[10px]">★</span>
-                                </div>
-                            </div>
+                              {/* Content Overlay */}
+                              <div className="absolute bottom-4 left-4 right-4 flex justify-between items-end">
+                                  <h3 className="text-white font-extrabold text-xl leading-tight truncate pr-2 z-10">{item.name}</h3>
+                                  <div className="flex-shrink-0 bg-[#25a541] text-white text-xs font-bold px-1.5 py-0.5 rounded flex items-center gap-1 shadow-sm z-10">
+                                      <span>{item.rating}</span>
+                                      <span className="text-[10px]">★</span>
+                                  </div>
+                              </div>
+                          </div>
+
+                          {/* Details Section */}
+                          <div className="px-1">
+                              <div className="flex justify-between items-start mb-3">
+                                  <div className="max-w-[70%]">
+                                      <div className="text-[#02060c] font-medium text-base truncate">{item.cuisine}</div>
+                                      <div className="text-[#02060c99] text-sm truncate">{item.location}</div>
+                                  </div>
+                                  <div className="text-right">
+                                      <div className="text-[#02060c] font-medium text-base">{item.price}</div>
+                                      <div className="text-[#02060c99] text-sm">{item.distance}</div>
+                                  </div>
+                              </div>
+
+                              {/* Offers */}
+                              <div className="space-y-2">
+                                  <div className="flex items-center gap-2">
+                                      <div className="flex-1 bg-[#1ba672] text-white px-2 py-1.5 rounded-lg flex items-center gap-2">
+                                          <img src="https://media-assets.swiggy.com/swiggy/image/upload/fl_lossy,f_auto,q_auto/dineout/rx-card/OFFER.png" alt="%" className="w-5 h-5 brightness-0 invert" />
+                                          <span className="text-sm font-bold truncate line-clamp-1">{item.offer}</span>
+                                      </div>
+                                      {item.offerCount && (
+                                          <span className="text-[#02060c99] text-xs font-bold whitespace-nowrap">{item.offerCount}</span>
+                                      )}
+                                  </div>
+                                  <div className="bg-[#eefcf4] text-[#1ba672] px-3 py-1.5 rounded-lg text-sm font-bold flex items-center gap-2 inline-block">
+                                      <img src="https://media-assets.swiggy.com/swiggy/image/upload/fl_lossy,f_auto,q_auto/dineout/rx-card/OFFER.png" alt="%" className="w-4 h-4" />
+                                      Up to 10% off with bank offers
+                                  </div>
+                              </div>
+                          </div>
                         </div>
-
-                        {/* Details Section */}
-                        <div className="px-1">
-                            <div className="flex justify-between items-start mb-3">
-                                <div className="max-w-[70%]">
-                                    <div className="text-[#02060c] font-medium text-base truncate">{item.cuisine}</div>
-                                    <div className="text-[#02060c99] text-sm truncate">{item.location}</div>
-                                </div>
-                                <div className="text-right">
-                                    <div className="text-[#02060c] font-medium text-base">{item.price}</div>
-                                    <div className="text-[#02060c99] text-sm">{item.distance}</div>
-                                </div>
-                            </div>
-
-                            {/* Offers */}
-                            <div className="space-y-2">
-                                <div className="flex items-center gap-2">
-                                    <div className="flex-1 bg-[#1ba672] text-white px-2 py-1.5 rounded-lg flex items-center gap-2">
-                                        <img src="https://media-assets.swiggy.com/swiggy/image/upload/fl_lossy,f_auto,q_auto/dineout/rx-card/OFFER.png" alt="%" className="w-5 h-5 brightness-0 invert" />
-                                        <span className="text-sm font-bold truncate line-clamp-1">{item.offer}</span>
-                                    </div>
-                                    {item.offerCount && (
-                                        <span className="text-[#02060c99] text-xs font-bold whitespace-nowrap">{item.offerCount}</span>
-                                    )}
-                                </div>
-                                <div className="bg-[#eefcf4] text-[#1ba672] px-3 py-1.5 rounded-lg text-sm font-bold flex items-center gap-2 inline-block">
-                                    <img src="https://media-assets.swiggy.com/swiggy/image/upload/fl_lossy,f_auto,q_auto/dineout/rx-card/OFFER.png" alt="%" className="w-4 h-4" />
-                                    Up to 10% off with bank offers
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                      </div>
                 ))}
             </div>
         </section>

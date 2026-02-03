@@ -1,3 +1,4 @@
+"use client";
 import React from 'react';
 
 const Header = () => {
@@ -21,19 +22,19 @@ const Header = () => {
                 </div>
 
                 <nav className="hidden md:flex items-center gap-8 text-sm font-semibold">
-                    <a href="https://www.swiggy.com/corporate/" target="_blank" className="hover:opacity-80 transition-opacity">
+                    <button type="button" onClick={(e) => e.preventDefault()} className="hover:opacity-80 transition-opacity bg-transparent border-none text-inherit cursor-pointer font-inherit">
                         Swiggy Corporate
-                    </a>
-                    <a href="https://partner.swiggy.com/" target="_blank" className="hover:opacity-80 transition-opacity">
+                    </button>
+                    <button type="button" onClick={(e) => e.preventDefault()} className="hover:opacity-80 transition-opacity bg-transparent border-none text-inherit cursor-pointer font-inherit">
                         Partner with us
-                    </a>
-                    <a href="#" className="border border-white rounded-xl px-4 py-3 flex items-center gap-2 hover:bg-white hover:text-swiggy-orange transition-colors">
+                    </button>
+                    <a href="#app-banner" className="border border-white rounded-xl px-4 py-3 flex items-center gap-2 hover:bg-white hover:text-swiggy-orange transition-colors">
                         Get the App
                         <span className="text-lg">↗</span>
                     </a>
-                    <a href="#" className="bg-black text-white rounded-xl px-6 py-3 hover:bg-gray-900 transition-colors">
+                    <button onClick={(e) => { e.preventDefault(); window.dispatchEvent(new CustomEvent('open-login')); }} className="bg-black text-white rounded-xl px-6 py-3 hover:bg-gray-900 transition-colors cursor-pointer">
                         Sign in
-                    </a>
+                    </button>
                 </nav>
             </div>
         </header>

@@ -6,6 +6,7 @@ import DineoutSection from "../components/DineoutSection";
 import AppBanner from "../components/AppBanner";
 import Cities from "../components/Cities";
 import Footer from "../components/Footer";
+import LoginModal from "../components/LoginModal";
 
 export default function Home() {
   return (
@@ -29,6 +30,9 @@ export default function Home() {
 
       {/* App Banner */}
       <AppBanner />
+
+      {/* Login modal (global) */}
+      <LoginModal />
 
       {/* Cities with delivery */}
       <Cities />
