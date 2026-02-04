@@ -131,9 +131,14 @@ const Hero = () => {
                         </button>
                     </div>
 
-                    {/* Instamart Card - clone only, no redirect */}
-                    <div className="relative cursor-pointer hover:scale-[1.02] transition-transform duration-300">
-                        <button type="button" onClick={(e) => e.preventDefault()} className="block w-full text-left p-0 border-0 bg-transparent cursor-default">
+                    {/* Instamart Card – not available; disabled cursor on hover */}
+                    <div className="relative cursor-not-allowed transition-transform duration-300">
+                        <button
+                            type="button"
+                            onClick={(e) => e.preventDefault()}
+                            className="block w-full text-left p-0 border-0 bg-transparent cursor-not-allowed"
+                            aria-disabled
+                        >
                             <img
                                 src="https://media-assets.swiggy.com/swiggy/image/upload/fl_lossy,f_auto,q_auto/MERCHANDISING_BANNERS/IMAGES/MERCH/2024/7/23/b5c57bbf-df54-4dad-95d1-62e3a7a8424d_IM3BU.png"
                                 alt="Instamart"
@@ -142,9 +147,9 @@ const Hero = () => {
                         </button>
                     </div>
 
-                    {/* Dineout Card - clone only, no redirect */}
-                    <div className="relative cursor-pointer hover:scale-[1.02] transition-transform duration-300">
-                        <button type="button" onClick={(e) => e.preventDefault()} className="block w-full text-left p-0 border-0 bg-transparent cursor-default">
+                    {/* Dineout Card – not available; disabled cursor on hover */}
+                    <div className="relative cursor-not-allowed transition-transform duration-300">
+                        <button type="button" onClick={(e) => e.preventDefault()} className="block w-full text-left p-0 border-0 bg-transparent cursor-not-allowed" aria-disabled>
                             <img
                                 src="https://media-assets.swiggy.com/swiggy/image/upload/fl_lossy,f_auto,q_auto/MERCHANDISING_BANNERS/IMAGES/MERCH/2024/7/23/b6d9b7ab-91c7-4f72-9bf2-fcd4ceec3537_DO3BU.png"
                                 alt="Dineout"

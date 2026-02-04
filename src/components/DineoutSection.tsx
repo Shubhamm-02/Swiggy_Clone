@@ -119,7 +119,7 @@ const DineoutSection = () => {
     return (
         <section className="mt-10 md:mt-12 mb-20">
             <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-extrabold text-[#02060c] tracking-tight">Discover best restaurants on Dineout</h2>
+                <h2 className="text-2xl font-extrabold text-[#02060c] tracking-tight cursor-not-allowed">Discover best restaurants on Dineout</h2>
                 <div className="flex gap-3">
                     <button onClick={() => scroll('left')} className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-gray-800 disabled:opacity-50 hover:bg-gray-300 transition-colors">
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
@@ -135,8 +135,8 @@ const DineoutSection = () => {
                 className="flex gap-6 overflow-x-auto no-scrollbar pb-4 -mx-4 px-4 scroll-smooth"
             >
                 {restaurants.map((item, index) => (
-                      <div key={index} className="min-w-[330px] max-w-[330px] group">
-                        <div className="block cursor-default" aria-label={item.name}>
+                      <div key={index} className="min-w-[330px] max-w-[330px] group cursor-not-allowed">
+                        <div className="block cursor-not-allowed" aria-label={item.name} aria-disabled>
                           {/* Image Section */}
                           <div className="w-full h-[220px] relative rounded-2xl overflow-hidden mb-3">
                               <img

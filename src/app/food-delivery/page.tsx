@@ -5,10 +5,24 @@ import Link from 'next/link';
 import AppBanner from '../../components/AppBanner';
 import Footer from '../../components/Footer';
 import { CartCountBadge } from '../../components/CartCountBadge';
+import { SignInNavLink } from '../../components/SignInNavLink';
+import { useRestaurantsFromApi, type RestaurantCard } from '../../lib/useRestaurants';
 
-function getRestaurantSlug(r: { name: string; slug?: string }): string {
+function getRestaurantSlug(r: { name: string; slug?: string; id?: string }): string {
   if (r.slug) return r.slug;
+  if (r.id) return r.id;
   return r.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'restaurant';
+}
+
+// Map UI sort to API sort_by
+function sortToApi(appliedSort: string): string | undefined {
+  switch (appliedSort) {
+    case 'deliveryTimeAsc': return 'delivery_time';
+    case 'modelBasedRatingDesc': return 'rating';
+    case 'costForTwoAsc': return 'price_low';
+    case 'costForTwoDesc': return 'price_high';
+    default: return undefined;
+  }
 }
 
 // What's on your mind – order & structure from Swiggy snippet (collection_grid): biryani → Pastry
@@ -61,71 +75,6 @@ const TOP_CHAINS: Array<{ name: string; rating: string; time: string; cuisines: 
   { name: 'Nandhini Deluxe', rating: '4.4', time: '20-25 mins', cuisines: 'Andhra, Biryani, Chinese, North Indian', location: 'St. Marks Road', offer: 'ITEMS AT ₹199', img: `${RX}/2024/11/3/7f19aaac-7299-4b54-a22d-69fd67f8fb65_3434.jpg`, slug: 'nandhini-deluxe' },
 ];
 
-// Restaurants with online food delivery in Bangalore – order & data from snippet (restaurant_list)
-const RX660 = 'https://media-assets.swiggy.com/swiggy/image/upload/fl_lossy,f_auto,q_auto,w_660';
-const LISTING_RESTAURANTS: Array<{ name: string; rating: string; time: string; cuisines: string; location: string; offer: string; img: string; slug?: string }> = [
-  // Restaurants with detail pages (from RESTAURANT_CONFIG)
-  { name: 'Pizza Hut', rating: '4.3', time: '35-40 mins', cuisines: 'Pizzas', location: 'Central Bangalore', offer: 'ITEMS AT ₹49', img: `${RX660}/RX_THUMBNAIL/IMAGES/VENDOR/2025/9/1/5d703bb8-2414-4ab1-bcae-59bba6a52598_10575.JPG`, slug: 'pizza-hut' },
-  { name: 'A2B - Adyar Ananda Bhavan', rating: '4.6', time: '35-40 mins', cuisines: 'South Indian, North Indian, Sweets, Chinese', location: 'Shanti Nagar', offer: 'ITEMS AT ₹33', img: `${RX660}/RX_THUMBNAIL/IMAGES/VENDOR/2026/1/7/394d4bca-db65-43a2-9372-12543611d33a_12808.JPG`, slug: 'a2b-adyar-ananda-bhavan' },
-  { name: 'Cookie Man', rating: '4.4', time: '55-65 mins', cuisines: 'Desserts, Ice Cream', location: 'Binnipete', offer: 'Buy 1 Get 1 Free', img: `${RX660}/RX_THUMBNAIL/IMAGES/VENDOR/2026/1/21/a2d8b72f-a4e9-4f83-901c-50dc41a595e6_58527.JPG`, slug: 'cookie-man' },
-  { name: 'IDC Kitchen', rating: '4.2', time: '30-35 mins', cuisines: 'North Indian, Chinese, Biryani', location: 'Koramangala', offer: '20% OFF UPTO ₹80', img: `${RX660}/v8jgifosg3vdzrgsv1sw`, slug: 'idc-kitchen' },
-  { name: 'Sri Udupi Park', rating: '4.5', time: '25-30 mins', cuisines: 'South Indian, North Indian', location: 'Malleshwaram', offer: 'FLAT ₹40 OFF', img: `${RX660}/RX_THUMBNAIL/IMAGES/VENDOR/2025/2/13/aa4b203a-ac9e-49e0-83e8-c4910f309395_48230.jpg`, slug: 'sri-udupi-park' },
-  { name: 'Anjappar', rating: '4.4', time: '35-40 mins', cuisines: 'Chettinad, South Indian, Biryani', location: 'Indiranagar', offer: '25% OFF UPTO ₹100', img: `${RX660}/e165225d26130103fecf1c40f5dc3669`, slug: 'anjappar' },
-  { name: 'Meghana Foods', rating: '4.7', time: '40-45 mins', cuisines: 'Andhra, Biryani, South Indian', location: 'Residency Road', offer: '20% OFF UPTO ₹75', img: `${RX660}/FOOD_CATALOG/IMAGES/CMS/2025/12/29/57bebf52-5a58-42e0-af9d-3d872d52de83_2d89d14b-3568-4be1-946d-1d7b0539edae.jpg`, slug: 'meghana-foods' },
-  { name: 'Nandhana Palace', rating: '4.4', time: '45-55 mins', cuisines: 'Andhra, Biryani, South Indian, North Indian', location: 'Rajajinagar', offer: 'ITEMS AT ₹99', img: `${RX660}/RX_THUMBNAIL/IMAGES/VENDOR/2024/11/3/7f19aaac-7299-4b54-a22d-69fd67f8fb65_3434.jpg`, slug: 'nandhana-palace' },
-  { name: 'Biryani Blues', rating: '4.3', time: '30-35 mins', cuisines: 'Biryani, Kebabs, Lucknowi, Hyderabadi', location: 'Church Street', offer: '66% OFF UPTO ₹156', img: `${RX660}/97377e54937c079fe269d744aa66274a`, slug: 'biryani-blues' },
-  { name: 'Empire Restaurant', rating: '4.1', time: '35-40 mins', cuisines: 'North Indian, Biryani, Mughlai', location: 'Koramangala', offer: '20% OFF UPTO ₹50', img: `${RX660}/titgwthozpmhyzjgdh5u`, slug: 'empire-restaurant' },
-  { name: 'MTR', rating: '4.6', time: '30-35 mins', cuisines: 'South Indian, North Indian, Sweets', location: 'Lalbagh Road', offer: 'FLAT ₹50 OFF', img: `${RX660}/tladdzgke7gic8xjng4z`, slug: 'mtr' },
-  { name: 'Truffles', rating: '4.5', time: '40-45 mins', cuisines: 'American, Continental, Desserts', location: 'Indiranagar', offer: '15% OFF UPTO ₹75', img: `${RX660}/cd832b6167eb9f88aeb1ccdebf38d942`, slug: 'truffles' },
-  { name: 'Toit', rating: '4.4', time: '45-50 mins', cuisines: 'Continental, Italian, Beverages', location: 'Indiranagar', offer: '20% OFF UPTO ₹100', img: `${RX660}/zzkjr3jcrl1pqop1pybu`, slug: 'toit' },
-  { name: "Haldiram's", rating: '4.3', time: '25-30 mins', cuisines: 'North Indian, Sweets, Snacks', location: 'Jayanagar', offer: '15% OFF UPTO ₹60', img: `${RX660}/RX_THUMBNAIL/IMAGES/VENDOR/2025/7/10/9b9d614a-5734-404e-80ea-0ecc1a2280ee_80118.JPG`, slug: 'haldiram' },
-  { name: 'WOW! Momo', rating: '4.2', time: '20-25 mins', cuisines: 'Tibetan, Chinese, Fast Food', location: 'Koramangala', offer: '20% OFF UPTO ₹50', img: `${RX660}/RX_THUMBNAIL/IMAGES/VENDOR/2024/5/13/069de1d3-5d52-470e-92b0-021b17642b51_884006.jpg`, slug: 'wow-momo' },
-  { name: 'Chai Point', rating: '4.0', time: '25-30 mins', cuisines: 'Beverages, Snacks, North Indian', location: 'Whitefield', offer: 'FLAT ₹30 OFF', img: `${RX660}/RX_THUMBNAIL/IMAGES/VENDOR/2025/7/15/c22a42eb-709e-452d-aa71-526749983f29_533773.jpg`, slug: 'chai-point' },
-  { name: 'Faasos', rating: '4.1', time: '30-35 mins', cuisines: 'Fast Food, Rolls, North Indian', location: 'HSR Layout', offer: '25% OFF UPTO ₹75', img: `${RX660}/RX_THUMBNAIL/IMAGES/VENDOR/2025/12/8/14d1d14e-75f9-4982-b440-8163558b578c_503001.JPG`, slug: 'faasos' },
-  { name: 'Barbeque Nation', rating: '4.0', time: '50-60 mins', cuisines: 'North Indian, Barbecue, Kebabs, Biryani', location: 'Ashok Nagar', offer: '66% OFF UPTO ₹126', img: `${RX660}/qzqeafcmayvxggjgj7rf`, slug: 'barbeque-nation' },
-  // Other listing restaurants
-  { name: 'Prasuma Momo Kitchen', rating: '4.6', time: '45-50 mins', cuisines: 'Pan-Asian, Snacks', location: 'Sanjay Nagar, New BEL Road', offer: 'ITEMS AT ₹99', img: `${RX660}/RX_THUMBNAIL/IMAGES/VENDOR/2024/12/14/62cd2b45-4421-4589-acc1-670a69330466_1008881.jpg`, slug: 'prasuma-momo-kitchen' },
-  { name: 'WeFit - Protein Bowls, Salads & Sandwiches', rating: '4.7', time: '20-30 mins', cuisines: 'Healthy Food, Salads, Keto, Snacks', location: 'Central Bangalore', offer: 'ITEMS AT ₹99', img: `${RX660}/RX_THUMBNAIL/IMAGES/VENDOR/2025/2/3/c64e7364-7909-417f-a850-ea89f41c318e_643832.jpg`, slug: 'wefit' },
-  { name: 'LeanCrust Pizza- ThinCrust Experts', rating: '4.6', time: '20-30 mins', cuisines: 'Pizzas, Italian, Desserts', location: 'Central Bangalore', offer: 'ITEMS AT ₹99', img: `${RX660}/RX_THUMBNAIL/IMAGES/VENDOR/2024/8/30/14414940-565f-4b31-8880-eb44478a5ec0_681612.jpg`, slug: 'leancrust-pizza' },
-  { name: 'GharSe - Homestyle & Healthy Tiffins', rating: '4.6', time: '20-30 mins', cuisines: 'Biryani, Thalis, Home Food', location: 'Central Bangalore', offer: 'ITEMS AT ₹99', img: `${RX660}/RX_THUMBNAIL/IMAGES/VENDOR/2025/12/10/c7882a93-411f-4efd-a65b-2d6c8d0f5e23_1155551.JPG`, slug: 'gharse' },
-  { name: "1881 Dum House: Lucknow's Legacy", rating: '4.2', time: '20-30 mins', cuisines: 'North Indian, Biryani, Awadhi', location: 'Central Bangalore', offer: 'ITEMS AT ₹99', img: `${RX660}/RX_THUMBNAIL/IMAGES/VENDOR/2025/9/19/1e60026f-d1bf-4362-a555-4aa1d3f5723a_1201253.JPG`, slug: '1881-dum-house' },
-  { name: 'The Only Place', rating: '4.6', time: '35-40 mins', cuisines: 'Continental, Steakhouse, American, Italian, Beverages, Desserts', location: 'Church Street', offer: '', img: `${RX660}/ejfvghykrkfapuyw5phz`, slug: 'the-only-place' },
-  { name: 'Magnolia Bakery', rating: '4.7', time: '30-35 mins', cuisines: 'Bakery, Desserts, Ice Cream', location: 'Central Bangalore', offer: '', img: `${RX660}/RX_THUMBNAIL/IMAGES/VENDOR/2024/12/20/51195588-58c4-4018-8a65-1e0a654a5db9_1011691.jpg`, slug: 'magnolia-bakery' },
-  { name: "McDonald's", rating: '4.3', time: '35-40 mins', cuisines: 'Burgers, Beverages, Cafe, Desserts', location: 'Ashok Nagar', offer: '₹100 OFF ABOVE ₹349', img: `${RX660}/RX_THUMBNAIL/IMAGES/VENDOR/2025/10/3/136c9e23-b373-45d5-9fad-7e4763ebd36b_43836.JPG`, slug: 'mcdonalds' },
-  { name: 'Subway', rating: '4.5', time: '25-30 mins', cuisines: 'sandwich, Salads, wrap, Healthy Food', location: 'Vittal Mallya Road', offer: '25% OFF UPTO ₹125', img: `${RX660}/RX_THUMBNAIL/IMAGES/VENDOR/2025/6/12/f4848952-184f-414f-bbe3-7a39faeddec9_69876.jpg`, slug: 'subway' },
-  { name: 'Marwadi chaat & Tiffin Services (Jodhpur wala)', rating: '4.2', time: '30-40 mins', cuisines: 'North Indian, Snacks, Rajasthani, Chaat', location: 'Central Bangalore', offer: '50% OFF UPTO ₹100', img: `${RX660}/e8f48a82caf1cdc428448f64dba7b61e`, slug: 'marwadi-chaat' },
-  { name: 'No 10 Fort Cochin', rating: '4.5', time: '30-40 mins', cuisines: 'Seafood, Kerala, Biryani, Beverages', location: 'St. Marks Road', offer: '', img: `${RX660}/RX_THUMBNAIL/IMAGES/VENDOR/2025/3/2/fb008b88-c4e4-4f64-9712-3282a54218e2_69354.jpg`, slug: 'no-10-fort-cochin' },
-  { name: 'Beyondburg Inc', rating: '4.6', time: '35-40 mins', cuisines: 'Burgers, Fast Food, American, Beverages', location: 'Ashok Nagar', offer: 'ITEMS AT ₹149', img: `${RX660}/cbf725cf7f6e603aa14893125098466c`, slug: 'beyondburg-inc' },
-  { name: 'Daily Kitchen - Everyday Homely Meals', rating: '4.4', time: '20-30 mins', cuisines: 'Home Food, Indian, North Indian, Thalis', location: 'Central Bangalore', offer: '₹166 OFF ABOVE ₹699', img: `${RX660}/RX_THUMBNAIL/IMAGES/VENDOR/2025/6/10/05595a0f-d3f2-474e-8183-3ef3d67f3ead_750396.jpg`, slug: 'daily-kitchen' },
-  { name: "Zulu's Pizza - Fresh Fanatics", rating: '4.6', time: '20-30 mins', cuisines: 'Pizzas, Italian, Fast Food, Desserts, Beverages', location: 'Central Bangalore', offer: '₹166 OFF ABOVE ₹349', img: `${RX660}/RX_THUMBNAIL/IMAGES/VENDOR/2025/7/21/f103dc1e-b3fa-4176-a8ba-ec91b955e0b2_1151998.JPG`, slug: 'zulus-pizza' },
-  { name: 'The Ghee Khichdi Project', rating: '4.4', time: '20-30 mins', cuisines: 'North Indian', location: 'Central Bangalore', offer: '₹166 OFF ABOVE ₹699', img: `${RX660}/RX_THUMBNAIL/IMAGES/VENDOR/2024/10/23/0083e787-d6f2-4027-b6c0-3e96a9c7a746_977665.jpg`, slug: 'the-ghee-khichdi-project' },
-  { name: 'Zoroy Luxury Chocolates', rating: '4.6', time: '35-40 mins', cuisines: 'Cakes, Desserts, Bakery, Beverages', location: 'Church Street', offer: '60% OFF UPTO ₹120', img: `${RX660}/jvjxrw3kozknizjs7ike`, slug: 'zoroy-luxury-chocolates' },
-  { name: 'ABH-Anand Biryani House', rating: '3.9', time: '25-30 mins', cuisines: 'Biryani', location: 'Central Bangalore', offer: '₹166 OFF ABOVE ₹449', img: `${RX660}/RX_THUMBNAIL/IMAGES/VENDOR/2025/8/6/9dc7388a-da2c-4c3c-9b8e-7033b90b28f7_1158485.jpg`, slug: 'abh-anand-biryani-house' },
-  { name: 'Easybites By Empire', rating: '4.5', time: '40-45 mins', cuisines: 'Burgers, sandwich, Fast Food, Beverages, Rolls & Wraps', location: 'Ashok Nagar', offer: '10% OFF UPTO ₹40', img: `${RX660}/RX_THUMBNAIL/IMAGES/VENDOR/2025/10/18/55e32997-f921-4cb5-9f43-56ee5888683d_279735.JPG`, slug: 'easybites-by-empire' },
-  { name: 'Crossroads', rating: '4.4', time: '35-40 mins', cuisines: 'American, Continental, Fast Food', location: 'Ashok Nagar', offer: '50% OFF ', img: `${RX660}/RX_THUMBNAIL/IMAGES/VENDOR/2026/1/9/27958ebc-4834-41ea-8d78-8f65722fa5bc_996105.jpg`, slug: 'crossroads' },
-  { name: 'Kanti Bakes And Flakes', rating: '4.6', time: '30-35 mins', cuisines: 'Sweets', location: 'Central Bangalore', offer: '', img: `${RX660}/j4yuk6yvb4sx1vqwewqt`, slug: 'kanti-bakes-and-flakes' },
-  { name: 'SMOOR', rating: '4.6', time: '30-35 mins', cuisines: 'Asian, Burgers, Italian, Thai, Sushi, Salads, Pastas, Pizzas, Mexican, Chinese', location: 'Lavelle Road', offer: '₹166 OFF ABOVE ₹699', img: `${RX660}/RX_THUMBNAIL/IMAGES/VENDOR/2026/1/2/6ec1221b-fddf-417d-bd93-2fd514d43fde_588012.JPG`, slug: 'smoor' },
-  { name: 'Rolls Kitchen', rating: '4.5', time: '30-35 mins', cuisines: 'Fast Food', location: 'Shanti Nagar', offer: '', img: `${RX660}/y7e8zdaagxrwxs3dnhnd`, slug: 'rolls-kitchen' },
-];
-
-// Helpers for sort logic
-function parseDeliveryMins(time: string): number {
-  const m = time.match(/(\d+)/);
-  return m ? parseInt(m[1], 10) : 999;
-}
-function parseRating(rating: string): number {
-  const n = parseFloat(rating);
-  return Number.isFinite(n) ? n : 0;
-}
-function getCostForTwo(offer: string | undefined, index: number): number {
-  if (!offer) return 400 + (index % 5) * 80;
-  const at = offer.match(/AT ₹(\d+)/i);
-  if (at) return parseInt(at[1], 10);
-  const rupees = offer.match(/₹(\d+)/);
-  if (rupees) return parseInt(rupees[1], 10);
-  return 400 + (index % 5) * 80;
-}
-
 // Swiggy StoreRating20 – green gradient circle + white star (from top_brands)
 function StoreRatingStar({ id }: { id: string }) {
   return (
@@ -150,22 +99,10 @@ export default function FoodDeliveryPage() {
   const [sortValue, setSortValue] = useState('relevance');
   const [appliedSort, setAppliedSort] = useState('relevance');
 
-  const sortedRestaurants = useMemo(() => {
-    const list = [...LISTING_RESTAURANTS];
-    if (appliedSort === 'relevance') return list;
-    if (appliedSort === 'deliveryTimeAsc') {
-      return list.sort((a, b) => parseDeliveryMins(a.time) - parseDeliveryMins(b.time));
-    }
-    if (appliedSort === 'modelBasedRatingDesc') {
-      return list.sort((a, b) => parseRating(b.rating) - parseRating(a.rating));
-    }
-    if (appliedSort === 'costForTwoAsc' || appliedSort === 'costForTwoDesc') {
-      const withCost = list.map((r, i) => ({ r, cost: getCostForTwo(r.offer, i) }));
-      withCost.sort((a, b) => appliedSort === 'costForTwoAsc' ? a.cost - b.cost : b.cost - a.cost);
-      return withCost.map(({ r }) => r);
-    }
-    return list;
-  }, [appliedSort]);
+  const { data: apiRestaurants, loading: apiLoading, error: apiError } = useRestaurantsFromApi({
+    sort_by: sortToApi(appliedSort),
+  });
+  const sortedRestaurants: RestaurantCard[] = useMemo(() => apiRestaurants ?? [], [apiRestaurants]);
 
   const scroll = (ref: React.RefObject<HTMLDivElement | null>, dir: 'left' | 'right', amount: number) => {
     if (ref.current) ref.current.scrollBy({ left: dir === 'right' ? amount : -amount, behavior: 'smooth' });
@@ -215,10 +152,11 @@ export default function FoodDeliveryPage() {
           {/* Nav right – ._3DdHb flex 1 min-w-0 flex row-reverse; .xNIjm margin-right 50px, font-size 16px font-weight 400, color rgba(2,6,12,.9), hover #ff5200 */}
           <div className="flex-1 min-w-0 flex flex-row-reverse items-center h-full mr-[-16px]">
             <CartCountBadge />
-            <a href="#" className="flex items-center h-full pl-7 text-base font-normal text-[rgba(2,6,12,.9)] hover:text-[#ff5200] transition-colors group" onClick={(e) => e.preventDefault()}>
-              <svg className="w-5 h-5 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
-              Sign In
-            </a>
+            <Link href="/orders" className="flex items-center h-full pl-7 text-base font-normal text-[rgba(2,6,12,.9)] hover:text-[#ff5200] transition-colors group">
+              <svg className="w-5 h-5 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>
+              Recent Orders
+            </Link>
+            <SignInNavLink />
             <a href="#" className="flex items-center h-full pl-7 text-base font-normal text-[rgba(2,6,12,.9)] hover:text-[#ff5200] transition-colors group" onClick={(e) => e.preventDefault()}>
               <svg className="w-5 h-5 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
               Help
@@ -520,9 +458,15 @@ export default function FoodDeliveryPage() {
         </div>
         <div className="sc-iBTApF sc-fXRJzk dIHtgG jnFtOt">
           <div>
+            {apiLoading && (
+              <p className="text-[#686b78] text-sm py-6">Loading restaurants…</p>
+            )}
+            {apiError && (
+              <p className="text-red-600 text-sm py-6" role="alert">{apiError}. Ensure the backend is running (e.g. POST /api/seed to seed data).</p>
+            )}
             <div data-testid="restaurant_list" className="sc-kOHTFB iynxeh grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {sortedRestaurants.map((r, idx) => (
-                <div key={r.name} data-testid="restaurant_list_card">
+              {!apiLoading && sortedRestaurants.map((r, idx) => (
+                <div key={r.id} data-testid="restaurant_list_card">
                   <Link href={`/restaurant/${getRestaurantSlug(r)}`} className="sc-hkaVUD kCcAII block no-underline text-inherit">
                     <div className="sc-jRUPCi gFZfmz flex flex-col w-full">
                       <div className="sc-dCFHLb cwwyro flex-shrink-0 rounded-xl overflow-hidden w-full" style={{ height: 160 }}>

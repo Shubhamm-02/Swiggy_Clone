@@ -1,7 +1,12 @@
 "use client";
 import React from 'react';
+import Link from 'next/link';
+import { useAuthStore, maskEmail } from '@/store/authStore';
 
 const Header = () => {
+    const user = useAuthStore((s) => s.user);
+    const signOut = useAuthStore((s) => s.signOut);
+
     return (
         <header className="absolute top-0 left-0 right-0 z-50 pt-8 px-4 md:px-20 bg-transparent text-white">
             <div className="container-max flex items-center justify-between">
@@ -32,9 +37,21 @@ const Header = () => {
                         Get the App
                         <span className="text-lg">↗</span>
                     </a>
-                    <button onClick={(e) => { e.preventDefault(); window.dispatchEvent(new CustomEvent('open-login')); }} className="bg-black text-white rounded-xl px-6 py-3 hover:bg-gray-900 transition-colors cursor-pointer">
-                        Sign in
-                    </button>
+                    {user ? (
+                        <div className="flex items-center gap-3">
+                            <Link href="/orders" className="text-white/90 hover:text-white transition-colors">
+                                Recent Orders
+                            </Link>
+                            <span className="text-white/90">Hi, {user.name || maskEmail(user.email)}</span>
+                            <button type="button" onClick={() => signOut()} className="bg-black text-white rounded-xl px-6 py-3 hover:bg-gray-900 transition-colors cursor-pointer">
+                                Sign out
+                            </button>
+                        </div>
+                    ) : (
+                        <button onClick={(e) => { e.preventDefault(); window.dispatchEvent(new CustomEvent('open-login')); }} className="bg-black text-white rounded-xl px-6 py-3 hover:bg-gray-900 transition-colors cursor-pointer">
+                            Sign in
+                        </button>
+                    )}
                 </nav>
             </div>
         </header>

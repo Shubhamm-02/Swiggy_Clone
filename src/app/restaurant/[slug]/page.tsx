@@ -4,6 +4,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import Link from 'next/link';
 import { useCartStore, getCartItemId } from '@/store/cartStore';
 import { CartCountBadge } from '@/components/CartCountBadge';
+import RestaurantFromApi from './RestaurantFromApi';
 
 const BASE = 'https://media-assets.swiggy.com/swiggy/image/upload/fl_lossy,f_auto,q_auto,w_660';
 
@@ -2012,9 +2013,16 @@ function RestaurantPageContent({ config, slug }: { config: RestaurantConfig; slu
   );
 }
 
+const REST_ID_REGEX = /^rest-\d+$/;
+
 export default function RestaurantPage(props: RestaurantPageProps) {
   const params = props.params instanceof Promise ? React.use(props.params) : props.params;
   const slug = typeof params?.slug === 'string' ? params.slug.toLowerCase().trim() : '';
+
+  if (REST_ID_REGEX.test(slug)) {
+    return <RestaurantFromApi restaurantId={slug} />;
+  }
+
   const config = slug ? RESTAURANT_CONFIG[slug] : null;
 
   useEffect(() => {

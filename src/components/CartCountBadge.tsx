@@ -1,11 +1,11 @@
 'use client';
 
 import React, { useEffect } from 'react';
-import Link from 'next/link';
 import { useCartStore } from '@/store/cartStore';
 
 export function CartCountBadge() {
   const totalCount = useCartStore((s) => (s._hydrated ? s.totalCount() : 0));
+  const openCart = useCartStore((s) => s.openCart);
   const rehydrate = useCartStore.persist?.rehydrate;
   const setHydrated = useCartStore((s) => s.setHydrated);
 
@@ -20,10 +20,10 @@ export function CartCountBadge() {
   }, [rehydrate, setHydrated]);
 
   return (
-    <Link
-      href="/food-delivery"
-      className="flex items-center h-full pl-7 text-base font-normal text-[rgba(2,6,12,.9)] hover:text-[#ff5200] transition-colors"
-      onClick={(e) => e.preventDefault()}
+    <button
+      type="button"
+      onClick={openCart}
+      className="flex items-center h-full pl-7 text-base font-normal text-[rgba(2,6,12,.9)] hover:text-[#ff5200] transition-colors bg-transparent border-0 cursor-pointer p-0"
     >
       <svg
         className="w-5 h-5 mr-2 flex-shrink-0 text-[rgba(2,6,12,.9)]"
@@ -45,6 +45,6 @@ export function CartCountBadge() {
         </span>
         Cart
       </span>
-    </Link>
+    </button>
   );
 }

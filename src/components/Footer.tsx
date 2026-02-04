@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import Link from 'next/link';
 
 const noop = (e: React.MouseEvent) => e.preventDefault();
 
@@ -53,7 +54,11 @@ const Footer = () => {
               <LinkItem>Careers</LinkItem>
               <LinkItem>Team</LinkItem>
               <LinkItem>Swiggy One</LinkItem>
-              <LinkItem>Swiggy Instamart</LinkItem>
+              <li className="mb-3">
+                <Link href="/instamart" className="text-[#02060c99] text-sm font-medium hover:text-[#02060c]">
+                  Swiggy Instamart
+                </Link>
+              </li>
               <LinkItem>Swiggy Dineout</LinkItem>
               <LinkItem>Swiggy Genie</LinkItem>
               <LinkItem>Minis</LinkItem>

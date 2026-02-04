@@ -35,13 +35,15 @@ const SCROLL_AMOUNT = 184;
 
 function GroceryCard({ name, img }: { name: string; img: string }) {
   return (
-    <div className="sc-iHmpnF iPOqfT">
+    <div className="sc-iHmpnF iPOqfT cursor-not-allowed">
       <div>
         <div className="sc-eWzREE bOruKC" style={{ marginRight: 40 }}>
           <button
             type="button"
+            onClick={(e) => e.preventDefault()}
             aria-label={name}
-            className="sc-fFlnrN gNzDuI block p-0 border-0 bg-transparent cursor-pointer overflow-hidden"
+            aria-disabled
+            className="sc-fFlnrN gNzDuI block p-0 border-0 bg-transparent cursor-not-allowed overflow-hidden w-full text-left"
             style={{ width: 144, minWidth: 144, height: 180, minHeight: 180 }}
           >
             <img className="sc-eeDRCY nODVy sc-gweoQa epodGz w-full h-full object-cover" src={img} alt={name} />
@@ -72,8 +74,8 @@ const GroceryOptions = () => {
     <div className="sc-jIGnZt NTwnN mt-10 md:mt-12">
       <div className="sc-kbhJrz ifklP flex items-center justify-between gap-4 mb-4">
         <div className="sc-ehixzo irLoo">
-          <div className="sc-aXZVg knOYjD sc-bpUBKd hmGNkX title text-xl md:text-2xl font-extrabold text-[#02060c] tracking-tight">
-            <div>Shop groceries on Instamart</div>
+          <div className="sc-aXZVg knOYjD sc-bpUBKd hmGNkX title text-xl md:text-2xl font-extrabold text-[#02060c] tracking-tight cursor-not-allowed">
+            <span>Shop groceries on Instamart</span>
           </div>
           <div className="sc-aXZVg dcVxGb sc-eyvILC hNwxyF"> </div>
         </div>
